@@ -1,0 +1,126 @@
+import uuid
+from datetime import datetime
+
+
+class TicketBookingSystem:
+
+    def __init__(self):
+        # Sample mock data for available trips
+        self.trips = {
+            "FL101": {
+                "type": "Flight",
+                "from": "Delhi",
+                "to": "Mumbai",
+                "price": 5000,
+                "seats": 20,
+            },
+            "TR202": {
+                "type": "Train",
+                "from": "Bangalore",
+                "to": "Chennai",
+                "price": 800,
+                "seats": 50,
+            },
+            "BS303": {
+                "type": "Bus",
+                "from": "Hyderabad",
+                "to": "Vijayawada",
+                "price": 1200,
+                "seats": 15,
+            },
+        }
+        self.booked_tickets = {}
+
+    def display_trips(self):
+        print("\n--- AVAILABLE TRIPS ---")
+        print(
+            f"{'ID':<8} {'Type':<8} {'From':<15} {'To':<15} {'Price (₹)':<10} {'Seats':<5}"
+        )
+        print("-" * 65)
+        for trip_id, info in self.trips.items():
+            print(
+                f"{trip_id:<8} {info['type']:<8} {info['from']:<15} {info['to']:<15} {info['price']:<10} {info['seats']:<5}"
+            )
+
+    def book_ticket(self, trip_id, passenger_name, seat_count):
+        # Validate trip ID
+        if trip_id not in self.trips:
+            print("\n❌ Invalid Trip ID. Please choose from the list.")
+            return
+
+        trip = self.trips[trip_id]
+
+        # Check seat availability
+        if trip["seats"] < seat_count:
+            print(
+                f"\n❌ Not enough seats available! Only {trip['seats']} left."
+            )
+            return
+
+        # Calculate costs
+        base_fare = trip["price"] * seat_count
+        tax = int(base_fare * 0.05)  # 5% tax
+        total_fare = base_fare + tax
+
+        # Update available inventory
+        trip["seats"] -= seat_count
+
+        # Generate ticket details
+        ticket_id = f"TKT-{str(uuid.uuid4())[:8].upper()}"
+        self.booked_tickets[ticket_id] = {
+            "ticket_id": ticket_id,
+            "passenger": passenger_name,
+            "type": trip["type"],
+            "from": trip["from"],
+            "to": trip["to"],
+            "seats_booked": seat_count,
+            "total_price": total_fare,
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        }
+
+        self._print_boarding_pass(self.booked_tickets[ticket_id])
+
+    def _print_boarding_pass(self, ticket):
+        print("\n" + "=" * 45)
+        print(f"🎫 DIGITAL BOARDING PASS [{ticket['type'].upper()}]")
+        print("=" * 45)
+        print(f"Ticket ID   : {ticket['ticket_id']}")
+        print(f"Passenger   : {ticket['passenger']}")
+        print(f"Route       : {ticket['from']} ➔ {ticket['to']}")
+        print(f"Seats       : {ticket['seats_booked']}")
+        print(f"Total Paid  : ₹{ticket['total_price']} (incl. 5% tax)")
+        print(f"Issued On   : {ticket['date']}")
+        print("=" * 45)
+        print("Have a safe journey!\n")
+
+
+# --- Interactive Menu Execution ---
+if __name__ == "__main__":
+    system = TicketBookingSystem()
+
+    while True:
+        print("\n===== TRAVEL TICKET CONSOLE =====")
+        print("1. View Available Routes")
+        print("2. Book a Ticket")
+        print("3. Exit")
+
+        choice = input("Enter choice (1-3): ").strip()
+
+        if choice == "1":
+            system.display_trips()
+        elif choice == "2":
+            system.display_trips()
+            t_id = input("\nEnter Trip ID to book: ").strip().upper()
+            name = input("Enter Passenger Name: ").strip()
+            try:
+                seats = int(input("Enter Number of Seats: "))
+                if seats <= 0:
+                    raise ValueError
+                system.book_ticket(t_id, name, seats)
+            except ValueError:
+                print("\n❌ Invalid seat number. Please enter a positive number.")
+        elif choice == "3":
+            print("\nThank you for using the Travel Ticket System. Goodbye!")
+            break
+        else:
+            print("\n❌ Invalid selection. Please enter 1, 2, or 3.")
