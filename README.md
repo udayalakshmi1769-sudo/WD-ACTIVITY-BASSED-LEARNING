@@ -1,2 +1,2 @@
-# WD-ACTIVITY-BASSED-LEARNING
-wd activity bassed learning
+# PYTHON-ACTIVITY-BASSED-LEARNING
+python activity bassed learning
